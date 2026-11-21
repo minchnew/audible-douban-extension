@@ -10,7 +10,7 @@ A local Chrome Manifest V3 extension that adds a small Douban book information p
 4. Reads the rating and up to five short comments from the Douban book page.
 5. Shows the result in a panel on the Audible page, with a link to the Douban entry.
 
-The extension only looks up titles and fetches publicly viewable Douban pages. Douban may rate-limit requests or show a verification page; in that case, the panel displays an error instead of trying to bypass it.
+The extension sends the Audible book title as a search query to Douban and includes your existing Douban cookies on requests to `search.douban.com` and `book.douban.com` so Douban can recognize your session. The extension does not read or store those cookies. Douban may still require verification; if so, the panel links to the Douban search page and lets you retry after completing any check there.
 
 ## Load it in Chrome
 
