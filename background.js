@@ -18,7 +18,7 @@ async function fetchDouban(rawUrl) {
     throw new Error("The requested Douban URL is outside the extension's allowed lookup paths.");
   }
   const response = await fetch(url, {
-    credentials: "omit",
+    credentials: "include",
     headers: { Accept: "text/html,application/xhtml+xml" }
   });
   if (!response.ok) throw new Error(`Douban returned HTTP ${response.status}.`);

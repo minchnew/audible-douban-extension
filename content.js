@@ -52,6 +52,10 @@
         [hidden] { display:none !important; }
         main { padding:14px; }
         .status { color:#666; }
+        .error { color:#8b3d32; }
+        .error-actions { display:flex; align-items:center; gap:12px; margin-top:10px; font-size:13px; }
+        .retry { border:1px solid #d6d6d6; border-radius:6px; padding:6px 9px; background:#f7f7f7; color:#333; font:13px Arial,sans-serif; }
+        .douban-search { color:#3377aa; }
         .title { font-size:16px; font-weight:700; margin:0 0 5px; }
         .title a { color:#3377aa; }
         .meta { color:#666; margin:3px 0; }
@@ -218,7 +222,28 @@
 
     lookupDoubanBook(title)
       .then((result) => { if (requestId === activeRequest) renderResult(shadow, result); })
-      .catch((error) => { if (requestId === activeRequest) setStatus(shadow, error.message || "Douban lookup failed."); });
+      .catch((error) => {
+        if (requestId !== activeRequest) return;
+        lastLookupKey = "";
+        renderLookupError(shadow, title, error.message || "Douban lookup failed.");
+      });
+  }
+
+  function renderLookupError(shadow, title, message) {
+    const blocked = /failed to fetch|networkerror/i.test(message);
+    const explanation = blocked
+      ? "Douban redirected the automatic request to a security check. Open Douban search, complete any check there, then retry."
+      : message;
+    const searchUrl = new URL("https://search.douban.com/book/subject_search");
+    searchUrl.searchParams.set("search_text", title);
+    searchUrl.searchParams.set("cat", "1001");
+    const main = shadow.querySelector("main");
+    main.innerHTML = `<div class="error">${escapeHtml(explanation)}</div>
+      <div class="error-actions"><a class="douban-search" href="${escapeAttribute(searchUrl.href)}" target="_blank" rel="noreferrer">Open Douban search ↗</a><button class="retry" type="button">Retry</button></div>`;
+    main.querySelector(".retry").addEventListener("click", () => {
+      lastLookupKey = "";
+      lookup();
+    });
   }
 
   async function lookupDoubanBook(title) {
